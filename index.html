@@ -1,0 +1,189 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <meta name="theme-color" content="#f1eee6" />
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='10' fill='%23f1eee6'/%3E%3Ccircle cx='32' cy='32' r='19' fill='none' stroke='%23111112' stroke-width='3'/%3E%3Cpath d='M14 49 L50 15' stroke='%23ff4d1f' stroke-width='4'/%3E%3C/svg%3E" />
+    <meta
+      name="description"
+      content="CHROMA / LINE — a realtime art-racing concept. Collect colour, outrun the sketch, and tear between 2D and 3D."
+    />
+    <title>CHROMA / LINE — 色彩边界</title>
+  </head>
+  <body>
+    <div id="app">
+      <canvas id="scene3d" aria-label="3D racing scene"></canvas>
+      <canvas id="scene2d" aria-label="2D ink racing scene"></canvas>
+      <canvas id="fx-ritual" aria-hidden="true"></canvas>
+
+      <div class="fold-edge fold-edge--left" aria-hidden="true"></div>
+      <div class="fold-edge fold-edge--right" aria-hidden="true"></div>
+      <div class="paper-shard paper-shard--a" aria-hidden="true"></div>
+      <div class="paper-shard paper-shard--b" aria-hidden="true"></div>
+      <div class="paper-shard paper-shard--c" aria-hidden="true"></div>
+
+      <div class="fx-grain" aria-hidden="true"></div>
+      <div class="fx-vignette" aria-hidden="true"></div>
+      <div class="fx-flash" id="fx-flash" aria-hidden="true"></div>
+
+      <div id="ui">
+        <div class="hud-scrim" aria-hidden="true"></div>
+        <header class="topbar">
+          <div class="brand" aria-label="Chroma Line">
+            <span class="brand__mark"></span>
+            <span class="brand__word">CHROMA<span class="brand__slash">/</span>LINE</span>
+            <span class="brand__edition">VOL. 01 / INK TO LIGHT</span>
+          </div>
+
+          <div class="topbar__right">
+            <button class="chip chip--sound" id="sound-toggle" type="button" aria-label="Toggle sound">
+              <span class="chip__dot"></span>
+              <span id="sound-label">SOUND ON</span>
+            </button>
+            <button class="chip chip--mode" id="mode-toggle" type="button" aria-label="Switch 2D and 3D mode">
+              <span class="chip__dot chip__dot--live"></span>
+              <span id="mode-label">3D / PERSPECTIVE</span>
+              <kbd>F</kbd>
+            </button>
+          </div>
+        </header>
+
+        <main id="hud" class="hud" aria-live="polite">
+          <section class="color-readout">
+            <div class="eyebrow"><span>01</span> COLOUR SYNTHESIS</div>
+            <div class="color-readout__value">
+              <span id="progress-value">00</span><span class="percent">%</span>
+            </div>
+            <div class="color-readout__bar"><i id="progress-fill"></i><b id="progress-marker"></b></div>
+            <div class="color-readout__caption" id="progress-caption">UNFINISHED SKETCH</div>
+          </section>
+
+          <section class="speed-readout">
+            <div class="eyebrow"><span>02</span> VELOCITY</div>
+            <div class="speed-readout__value"><span id="speed-value">000</span><small>KM/H</small></div>
+            <div class="speed-readout__bars" id="speed-bars" aria-hidden="true"></div>
+            <div class="boost-readout">
+              <span>BOOST</span>
+              <div class="boost-readout__track"><i id="boost-fill"></i></div>
+              <kbd>SHIFT</kbd>
+            </div>
+          </section>
+
+          <section class="run-stats">
+            <div><span>FRAGMENTS</span><strong id="fragment-count">000</strong></div>
+            <div><span>FLOW</span><strong id="combo-value">x1</strong></div>
+            <div><span>DISTANCE</span><strong id="distance-value">0.00<small>KM</small></strong></div>
+          </section>
+
+          <div class="mode-announce" id="mode-announce">
+            <span class="mode-announce__index">VIEW / <b id="announce-index">02</b></span>
+            <strong id="announce-title">INK PLANE</strong>
+            <em id="announce-sub">EVERY LINE IS A CHOICE.</em>
+          </div>
+
+          <div class="collect-toast" id="collect-toast">
+            <span id="toast-kicker">COLOUR ABSORBED</span>
+            <strong id="toast-value">+04%</strong>
+          </div>
+
+          <div class="controls" id="controls">
+            <div class="control"><kbd>A</kbd><kbd>D</kbd><span>STEER</span></div>
+            <div class="control"><kbd>SHIFT</kbd><span>BOOST</span></div>
+            <div class="control"><kbd>F</kbd><span>2D / 3D</span></div>
+            <div class="control control--touch">
+              <button id="touch-left" type="button" aria-label="Steer left">←</button>
+              <button id="touch-right" type="button" aria-label="Steer right">→</button>
+              <button id="touch-boost" class="touch-boost" type="button" aria-label="Boost">BOOST</button>
+            </div>
+          </div>
+        </main>
+
+        <section class="start-screen" id="start-screen">
+          <div class="start-screen__wash"></div>
+          <div class="start-screen__meta">
+            <span>A REALTIME ART RACER</span>
+            <span>CONCEPT PROTOTYPE / 2026</span>
+          </div>
+
+          <div class="title-block">
+            <div class="title-kicker"><i></i> AN UNFINISHED WORLD</div>
+            <h1 class="hero-title">
+              <span class="hero-title__chroma">CHROMA</span>
+              <span class="hero-title__line">LINE</span>
+            </h1>
+            <p class="hero-cn">色彩边界</p>
+            <p class="hero-copy">
+              Collect colour. Outrun the sketch.<br />
+              Fold the world between <em>2D</em> and <em>3D</em>.
+            </p>
+            <button class="ignite" id="start-button" type="button">
+              <span class="ignite__ring"></span>
+              <span class="ignite__label">IGNITE THE LINE</span>
+              <span class="ignite__key">ENTER</span>
+            </button>
+          </div>
+
+          <div class="start-screen__diagram" aria-hidden="true">
+            <span class="diagram-ellipse"></span>
+            <span class="diagram-cross diagram-cross--v"></span>
+            <span class="diagram-cross diagram-cross--h"></span>
+            <span class="diagram-tick diagram-tick--a"></span>
+            <span class="diagram-tick diagram-tick--b"></span>
+            <span class="diagram-tick diagram-tick--c"></span>
+            <span class="diagram-note">SUBJECT 07 — UNPAINTED / 1:1</span>
+            <span class="diagram-axis">AXIS / 3.04</span>
+          </div>
+
+          <div class="start-screen__footer">
+            <div class="start-screen__instructions">
+              <span><kbd>A</kbd><kbd>D</kbd> 转向</span>
+              <span><kbd>SHIFT</kbd> 加速</span>
+              <span><kbd>F</kbd> 纸面 / 空间</span>
+            </div>
+            <p class="start-screen__quote">“Every line remembers colour.”</p>
+          </div>
+        </section>
+
+        <section class="complete-screen" id="complete-screen" aria-hidden="true">
+          <div class="complete-screen__inner">
+            <div class="eyebrow"><span>03</span> SYNTHESIS COMPLETE</div>
+            <h2>REALITY<br /><em>ACHIEVED.</em></h2>
+            <p>线条有了重量，光有了温度。<br />You have dragged the sketch into the real.</p>
+            <div class="complete-stats">
+              <div><span>FRAGMENTS</span><strong id="final-fragments">000</strong></div>
+              <div><span>MAX FLOW</span><strong id="final-combo">x1</strong></div>
+              <div><span>TIME</span><strong id="final-time">00:00</strong></div>
+              <div><span>DISTANCE</span><strong id="final-distance">0.00</strong></div>
+            </div>
+            <button class="ignite ignite--small" id="restart-button" type="button">
+              <span class="ignite__ring"></span>
+              <span class="ignite__label">RUN IT AGAIN</span>
+              <span class="ignite__key">R</span>
+            </button>
+          </div>
+          <aside class="complete-screen__side">
+            <span>CHROMA / LINE</span>
+            <span>THE SKETCH IS NEVER FINISHED.</span>
+          </aside>
+        </section>
+
+        <div class="pause-screen" id="pause-screen" aria-hidden="true">
+          <span>ENGINE PAUSED</span>
+          <strong>PAUSE</strong>
+          <em>PRESS ESC TO RETURN</em>
+        </div>
+
+        <div class="corner-note corner-note--left">N 25° 02' 41" / E 121° 33' 54"</div>
+        <div class="corner-note corner-note--right">INK / PIGMENT / LIGHT</div>
+      </div>
+
+      <div class="boot" id="boot">
+        <div class="boot__line"></div>
+        <span>DRAWING THE WORLD</span>
+      </div>
+    </div>
+
+    <script type="module" src="/src/main.js"></script>
+  </body>
+</html>

@@ -1,0 +1,8 @@
+node_modules/
+.npm-cache/
+dist/
+.vite/
+.DS_Store
+*.log
+shot-*.png
+crop-*.png
