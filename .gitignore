@@ -6,3 +6,5 @@ dist/
 *.log
 shot-*.png
 crop-*.png
+.vercel
+.env*
